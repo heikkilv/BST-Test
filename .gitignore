@@ -27,3 +27,7 @@
 *.exe
 *.out
 *.app
+
+# QT Creator files
+*.pro.user
+*/build-*

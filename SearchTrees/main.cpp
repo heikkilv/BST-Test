@@ -1,0 +1,65 @@
+#include "treetest.hh"
+#include <iostream>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+    if (argc != 5)
+    {
+        std::cout << "Usage: " << argv[0]
+                  << " START_VALUE INTERVAL ITERATIONS REPEATS"
+                  << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    int startValue{ atoi(argv[1]) };
+    int interval{ atoi(argv[2]) };
+    int iterations{ atoi(argv[3]) };
+    int repeats{ atoi(argv[4]) };
+
+    std::vector<int> testValues;
+    for (int i{ 0 }; i < iterations; ++i)
+    {
+        testValues.push_back(startValue + i * interval);
+    }
+
+    TreeTest trees;
+    std::vector<TestTime> testTimes;
+    for (int i{ 0 }; i < repeats; ++i)
+    {
+        for (auto n : testValues)
+        {
+            std::cout << "Running tests with " << n << std::endl;
+            auto newTests{ trees.test(n) };
+            for (auto test : newTests)
+            {
+                testTimes.push_back(test);
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    std::cout << "Printing all test results:" << std::endl << std::endl;
+    printTestHeader();
+    for (auto time : testTimes)
+    {
+        printTestTime(time);
+    }
+
+    if (repeats > 1)
+    {
+        std::cout << std::endl
+                  << "Printing the average test results after " << repeats << " repeats:"
+                  << std::endl << std::endl;
+
+        auto averageTimes{ takeAverages(testTimes) };
+
+        printTestHeader();
+        for (auto time : averageTimes)
+        {
+            printTestTime(time);
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
