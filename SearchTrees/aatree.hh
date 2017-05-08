@@ -1,3 +1,9 @@
+// AA tree implementation
+//
+// Implementation is based on https://en.wikipedia.org/wiki/AA_tree (1.4.2017)
+//
+// Ville Heikkilä
+
 #ifndef AATREE_HH
 #define AATREE_HH
 

@@ -1,3 +1,7 @@
+// TreeTest class that provides the test functionality to the binary search tree test program
+//
+// Ville Heikkilä
+
 #ifndef TREETEST_HH
 #define TREETEST_HH
 
@@ -9,6 +13,11 @@
 #include <string>
 #include <vector>
 
+// Test parameters
+//  name_: the test name
+//  bst_: whether the standard BST will be included in the testing
+//  insert_: how the order of the numbers inserted in the first phase is chosen
+//  delete:: how the order of the numbers deleted in the first deletion phase is chosen
 struct Test
 {
     std::string name_;
@@ -17,6 +26,7 @@ struct Test
     RandomType delete_;
 };
 
+// A struct for storing the test results
 struct TestTime
 {
     std::string tree_;
@@ -38,6 +48,7 @@ struct TestTime
     int total_;
 };
 
+// The prepared test parameters
 const std::vector<Test> TEST_LIST
 {
     { "A", false, RandomType::ordered, RandomType::ordered },
@@ -48,9 +59,12 @@ const std::vector<Test> TEST_LIST
     { "F", true, RandomType::uniform, RandomType::uniform }
 };
 
+// Prints out the header line for the test results
 void printTestHeader();
+// Prints out the test results
 void printTestTime(const TestTime& test);
 
+// Calculates and returns the average results for similar tree, test type, and n
 std::vector<TestTime> takeAverages(const std::vector<TestTime>& testTimes);
 
 class TreeTest
@@ -58,6 +72,7 @@ class TreeTest
 public:
     TreeTest();
 
+    // Runs the tests with the given value of n
     std::vector<TestTime> test(int n);
 
 private:

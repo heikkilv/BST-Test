@@ -1,3 +1,7 @@
+// TreeTest class that provides the test functionality to the binary search tree test program
+//
+// Ville Heikkilä
+
 #include "treetest.hh"
 #include "randomvalue.hh"
 #include "timer.hh"

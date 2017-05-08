@@ -1,3 +1,9 @@
+// AA tree implementation
+//
+// Implementation is based on https://en.wikipedia.org/wiki/AA_tree (1.4.2017)
+//
+// Ville Heikkilä
+
 #include "aatree.hh"
 #include <algorithm>
 #include <iomanip>
@@ -423,20 +429,6 @@ AANode* AATree::decreaseLevel(AANode* node)
 
 void AATree::print() const
 {
-    /*
-    std::cout << "nodes: " << nodes_ << std::endl;
-    AANode* node = minimum();
-    while (node != nullptr)
-    {
-        std::cout << node->key_ << " ";
-        if (node->parent_) std::cout << "p: " << node->parent_->key_ << " ";
-        if (node->left_) std::cout << "l: " << node->left_->key_ << " ";
-        if (node->right_) std::cout << "r: " << node->right_->key_ << " ";
-        std::cout << std::endl;
-        node = successor(node);
-    }
-    */
-
     const int NODE_WIDTH{ 3 };
     const int NODE_SPACE{ 1 };
 

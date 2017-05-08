@@ -1,3 +1,16 @@
+// The main program for the binary search tree test
+//
+// Usage of the program: SearchTrees START_VALUE INTERVAL ITERATIONS REPEATS
+//   where START_VALUE = the start value of n in the tests
+//         INTERVAL    = the value by which n is increased in each iterations
+//         ITERATIONS  = how many iterations are run
+//         REPEATS     = how many times the test are repeated
+//
+//   example: SearchTrees 10000 5000 3 2
+//     will run the tests twice with the values of n = 10000, 15000 and 20000
+//
+// Ville Heikkilä
+
 #include "treetest.hh"
 #include <iostream>
 #include <stdlib.h>

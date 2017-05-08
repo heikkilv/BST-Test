@@ -1,3 +1,7 @@
+// RandomValue class for choosing the used values for the binary search tree test program
+//
+// Ville Heikkilä
+
 #include "randomvalue.hh"
 #include <algorithm>
 #include <chrono>

@@ -1,3 +1,7 @@
+// A simple timer class
+//
+// Ville Heikkilä
+
 #ifndef TIMER_HH
 #define TIMER_HH
 

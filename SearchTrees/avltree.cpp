@@ -1,3 +1,9 @@
+// AVL tree implementation
+//
+// Implementation is based on https://bitlush.com/blog/efficient-avl-tree-in-c-sharp (1.4.2017)
+//
+// Ville Heikkilä
+
 #include "avltree.hh"
 #include <iomanip>
 #include <iostream>

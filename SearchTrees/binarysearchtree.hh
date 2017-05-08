@@ -1,3 +1,10 @@
+// Standard binary search tree implementation
+//
+// Implementation is based on T.H. Cormen, C.E. Leiserson, R.L. Rivest, C. Stein,
+// Introduction to algorithms, 3rd ed. MIT Press, Cambridge, MA, 2009, Chapter 12
+//
+// Ville Heikkilä
+
 #ifndef BINARYSEARCHTREE_HH
 #define BINARYSEARCHTREE_HH
 

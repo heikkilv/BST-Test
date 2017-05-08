@@ -1,3 +1,10 @@
+// Red Black tree implementation
+//
+// Implementation is based on T.H. Cormen, C.E. Leiserson, R.L. Rivest, C. Stein,
+// Introduction to algorithms, 3rd ed. MIT Press, Cambridge, MA, 2009, Chapter 13
+//
+// Ville Heikkilä
+
 #include "redblacktree.hh"
 #include <algorithm>
 #include <iomanip>

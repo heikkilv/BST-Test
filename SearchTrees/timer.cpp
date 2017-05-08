@@ -1,3 +1,7 @@
+// A simple timer class
+//
+// Ville Heikkilä
+
 #include "timer.hh"
 
 Timer::Timer() :
