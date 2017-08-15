@@ -7,61 +7,66 @@
 #ifndef AVLTREE_HH
 #define AVLTREE_HH
 
+#include <utility>
+
+template<typename Key, typename Value>
 struct AVLNode
 {
-    int key_;
+    Key key_;
+    Value value_;
     int balance_;
-    AVLNode* parent_;
-    AVLNode* left_;
-    AVLNode* right_;
-
-    AVLNode(int key) :
-        key_{ key },
-        balance_{ 0 },
-        parent_{ nullptr },
-        left_{ nullptr },
-        right_{ nullptr } {}
+    AVLNode<Key, Value>* parent_;
+    AVLNode<Key, Value>* left_;
+    AVLNode<Key, Value>* right_;
 };
 
+template<typename Key, typename Value>
 class AVLTree
 {
 public:
+    using key_type = Key;
+    using mapped_type = Value;
+    using value_type = std::pair<const key_type, mapped_type>;
+    using size_type = unsigned int;
+
     AVLTree();
     ~AVLTree();
 
-    int nodes() const;
+    size_type size() const;
     int height() const;
-    int height(AVLNode* node) const;
+    int height(AVLNode<Key, Value>* node) const;
 
     void clear();
 
-    AVLNode* maximum() const;
-    AVLNode* maximum(AVLNode* node) const;
-    AVLNode* minimum() const;
-    AVLNode* minimum(AVLNode* node) const;
+    AVLNode<Key, Value>* maximum() const;
+    AVLNode<Key, Value>* maximum(AVLNode<Key, Value>* node) const;
+    AVLNode<Key, Value>* minimum() const;
+    AVLNode<Key, Value>* minimum(AVLNode<Key, Value>* node) const;
 
-    AVLNode* successor(AVLNode* node) const;
-    AVLNode* predecessor(AVLNode* node) const;
+    AVLNode<Key, Value>* successor(AVLNode<Key, Value>* node) const;
+    AVLNode<Key, Value>* predecessor(AVLNode<Key, Value>* node) const;
 
-    bool isInTree(AVLNode* node) const;
+    bool isInTree(AVLNode<Key, Value>* node) const;
 
-    AVLNode* search(int key) const;
-    void insertNode(AVLNode* node);
-    void deleteNode(AVLNode* node);
+    AVLNode<Key, Value>* find(const Key& key) const;
+    bool insert(const value_type& value);
+    size_type erase(const Key& key);
 
     void print() const;
 
 private:
-    AVLNode* root_;
-    int nodes_;
+    AVLNode<Key, Value>* root_;
+    size_type nodes_;
 
-    void insertBalance(AVLNode* node, int balance);
-    void deleteBalance(AVLNode* node, int balance);
-    AVLNode* rotateLeft(AVLNode* x);
-    AVLNode* rotateLeftRight(AVLNode* x);
-    AVLNode* rotateRight(AVLNode* x);
-    AVLNode* rotateRightLeft(AVLNode* x);
-    void replace(AVLNode* target, AVLNode* source);
+    void insertBalance(AVLNode<Key, Value>* node, int balance);
+    void deleteBalance(AVLNode<Key, Value>* node, int balance);
+    AVLNode<Key, Value>* rotateLeft(AVLNode<Key, Value>* x);
+    AVLNode<Key, Value>* rotateLeftRight(AVLNode<Key, Value>* x);
+    AVLNode<Key, Value>* rotateRight(AVLNode<Key, Value>* x);
+    AVLNode<Key, Value>* rotateRightLeft(AVLNode<Key, Value>* x);
+    void replace(AVLNode<Key, Value>* target, AVLNode<Key, Value>* source);
 };
+
+#include "avltree.cpp"
 
 #endif // AVLTREE_HH

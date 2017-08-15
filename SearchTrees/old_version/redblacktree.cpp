@@ -5,9 +5,6 @@
 //
 // Ville Heikkilä
 
-#ifndef REDBLACKTREE_CPP
-#define REDBLACKTREE_CPP
-
 #include "redblacktree.hh"
 #include <algorithm>
 #include <iomanip>
@@ -17,7 +14,7 @@
 
 namespace
 {
-/*
+
 inline std::ostream& red(std::ostream &s)
 {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -33,43 +30,38 @@ inline std::ostream& white(std::ostream &s)
             FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
     return s;
 }
-*/
+
 } // namespace
 
-template<typename Key, typename Value>
-RedBlackTree<Key, Value>::RedBlackTree() :
-    nil_{ new RedBlackNode<Key, Value>{ -1, {}, Color::Black, nullptr, nullptr, nullptr } },
+RedBlackTree::RedBlackTree() :
+    nil_{ new RedBlackNode(-1) },
     root_{ nil_ },
     nodes_{ 0 }
 {
 }
 
-template<typename Key, typename Value>
-RedBlackTree<Key, Value>::~RedBlackTree()
+RedBlackTree::~RedBlackTree()
 {
-    RedBlackNode<Key, Value>* node{ minimum() };
+    RedBlackNode* node{ minimum() };
     while (node != nil_)
     {
-        erase(node->key_);
+        deleteNode(node);
         node = minimum();
     }
     delete nil_;
 }
 
-template<typename Key, typename Value>
-typename RedBlackTree<Key, Value>::size_type RedBlackTree<Key, Value>::size() const
+int RedBlackTree::nodes() const
 {
     return nodes_;
 }
 
-template<typename Key, typename Value>
-int RedBlackTree<Key, Value>::height() const
+int RedBlackTree::height() const
 {
     return height(root_);
 }
 
-template<typename Key, typename Value>
-int RedBlackTree<Key, Value>::height(RedBlackNode<Key, Value>* node) const
+int RedBlackTree::height(RedBlackNode* node) const
 {
     if (node == nil_)
     {
@@ -82,19 +74,17 @@ int RedBlackTree<Key, Value>::height(RedBlackNode<Key, Value>* node) const
     return std::max(leftHeight, rightHeight);
 }
 
-template<typename Key, typename Value>
-bool RedBlackTree<Key, Value>::isNull(RedBlackNode<Key, Value>* node) const
+bool RedBlackTree::isNull(RedBlackNode* node) const
 {
     return (node == nullptr or node == nil_);
 }
 
-template<typename Key, typename Value>
-void RedBlackTree<Key, Value>::clear()
+void RedBlackTree::clear()
 {
-    RedBlackNode<Key, Value>* node{ minimum() };
+    RedBlackNode* node{ minimum() };
     while (node != nil_)
     {
-        erase(node->key_);
+        deleteNode(node);
         node = minimum();
     }
 
@@ -102,21 +92,19 @@ void RedBlackTree<Key, Value>::clear()
     nodes_ = 0;
 }
 
-template<typename Key, typename Value>
-RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::maximum() const
+RedBlackNode* RedBlackTree::maximum() const
 {
     return maximum(root_);
 }
 
-template<typename Key, typename Value>
-RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::maximum(RedBlackNode<Key, Value>* node) const
+RedBlackNode* RedBlackTree::maximum(RedBlackNode* node) const
 {
     if (node == nil_)
     {
         return nil_;
     }
 
-    RedBlackNode<Key, Value>* x{ node };
+    RedBlackNode* x{ node };
     while (x->right_ != nil_)
     {
         x = x->right_;
@@ -124,21 +112,19 @@ RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::maximum(RedBlackNode<Key, Va
     return x;
 }
 
-template<typename Key, typename Value>
-RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::minimum() const
+RedBlackNode* RedBlackTree::minimum() const
 {
     return minimum(root_);
 }
 
-template<typename Key, typename Value>
-RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::minimum(RedBlackNode<Key, Value>* node) const
+RedBlackNode* RedBlackTree::minimum(RedBlackNode* node) const
 {
     if (node == nil_)
     {
         return nil_;
     }
 
-    RedBlackNode<Key, Value>* x{ node };
+    RedBlackNode* x{ node };
     while (x->left_ != nil_)
     {
         x = x->left_;
@@ -146,8 +132,7 @@ RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::minimum(RedBlackNode<Key, Va
     return x;
 }
 
-template<typename Key, typename Value>
-RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::successor(RedBlackNode<Key, Value>* node) const
+RedBlackNode* RedBlackTree::successor(RedBlackNode* node) const
 {
     if (node == nil_)
     {
@@ -159,8 +144,8 @@ RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::successor(RedBlackNode<Key, 
         return minimum(node->right_);
     }
 
-    RedBlackNode<Key, Value>* x{ node };
-    RedBlackNode<Key, Value>* y{ x->parent_ };
+    RedBlackNode* x{ node };
+    RedBlackNode* y{ x->parent_ };
     while (y != nil_ and x == y->right_)
     {
         x = y;
@@ -169,8 +154,7 @@ RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::successor(RedBlackNode<Key, 
     return y;
 }
 
-template<typename Key, typename Value>
-RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::predecessor(RedBlackNode<Key, Value>* node) const
+RedBlackNode* RedBlackTree::predecessor(RedBlackNode* node) const
 {
     if (node == nil_)
     {
@@ -182,8 +166,8 @@ RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::predecessor(RedBlackNode<Key
         return maximum(node->left_);
     }
 
-    RedBlackNode<Key, Value>* x{ node };
-    RedBlackNode<Key, Value>* y{ x->parent_ };
+    RedBlackNode* x{ node };
+    RedBlackNode* y{ x->parent_ };
     while (y != nil_ and x == y->left_)
     {
         x = y;
@@ -192,15 +176,14 @@ RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::predecessor(RedBlackNode<Key
     return y;
 }
 
-template<typename Key, typename Value>
-bool RedBlackTree<Key, Value>::isInTree(RedBlackNode<Key, Value>* node) const
+bool RedBlackTree::isInTree(RedBlackNode* node) const
 {
     if (node == nil_ or node == nullptr or root_ == nil_)
     {
         return false;
     }
 
-    RedBlackNode<Key, Value>* x{ node };
+    RedBlackNode* x{ node };
     while (x != nil_)
     {
         if (x == root_)
@@ -213,84 +196,77 @@ bool RedBlackTree<Key, Value>::isInTree(RedBlackNode<Key, Value>* node) const
     return false;
 }
 
-template<typename Key, typename Value>
-RedBlackNode<Key, Value>* RedBlackTree<Key, Value>::find(const Key& key) const
+RedBlackNode* RedBlackTree::search(int key) const
 {
-    auto x{ root_ };
-    while (x != nullptr)
+    RedBlackNode* x{ root_ };
+    while (x != nil_ and x->key_ != key)
     {
         if (key < x->key_)
         {
             x = x->left_;
         }
-        else if (x->key_ < key)
-        {
-            x = x->right_;
-        }
         else
         {
-            return x;
+            x = x->right_;
         }
     }
     return x;
 }
 
-template<typename Key, typename Value>
-bool RedBlackTree<Key, Value>::insert(const value_type& value)
+void RedBlackTree::insertNode(RedBlackNode* node)
 {
-    RedBlackNode<Key, Value>* x{ root_ };
-    RedBlackNode<Key, Value>* parent{ nil_ };
+    if (node == nil_ or node == nullptr)
+    {
+        return;
+    }
+
+    RedBlackNode* x{ root_ };
+    RedBlackNode* y{ nil_ };
 
     while (x != nil_)
     {
-        parent = x;
-        if (value.first < x->key_)
+        y = x;
+        if (node->key_ < x->key_)
         {
             x = x->left_;
         }
-        else if (x->key_ < value.first)
+        else
         {
             x = x->right_;
         }
-        else
-        {
-            return false;
-        }
     }
 
-    RedBlackNode<Key, Value>* node{
-        new RedBlackNode<Key, Value>{ value.first, value.second, Color::Red,
-                                      parent, nil_, nil_ } };
+    node->parent_ = y;
+    ++nodes_;
 
-    if (parent == nil_)
+    if (y == nil_)
     {
         root_ = node;
     }
-    else if (node->key_ < parent->key_)
+    else if (node->key_ < y->key_)
     {
-        parent->left_ = node;
+        y->left_ = node;
     }
     else
     {
-        parent->right_ = node;
+        y->right_ = node;
     }
-    ++nodes_;
 
+    node->left_ = nil_;
+    node->right_ = nil_;
+    node->color_ = Color::Red;
     insertFix(node);
-    return true;
 }
 
-template<typename Key, typename Value>
-typename RedBlackTree<Key, Value>::size_type RedBlackTree<Key, Value>::erase(const Key& key)
+void RedBlackTree::deleteNode(RedBlackNode* node)
 {
-    auto node{ find(key) };
-    if (node == nil_)
+    if (not isInTree(node))
     {
-        return 0;
+        return;
     }
 
-    RedBlackNode<Key, Value>* x{ nil_ };
-    RedBlackNode<Key, Value>* y{ node };
+    RedBlackNode* x{ nil_ };
+    RedBlackNode* y{ node };
     Color yOriginalColor{ y->color_ };
 
     if (node->left_ == nil_)
@@ -305,7 +281,7 @@ typename RedBlackTree<Key, Value>::size_type RedBlackTree<Key, Value>::erase(con
     }
     else
     {
-        RedBlackNode<Key, Value>* y{ minimum(node->right_) };
+        RedBlackNode* y{ minimum(node->right_) };
         yOriginalColor = y->color_;
         x = y->right_;
 
@@ -332,14 +308,11 @@ typename RedBlackTree<Key, Value>::size_type RedBlackTree<Key, Value>::erase(con
     {
         deleteFix(x);
     }
-
-    return 1;
 }
 
-template<typename Key, typename Value>
-void RedBlackTree<Key, Value>::rotateLeft(RedBlackNode<Key, Value>* x)
+void RedBlackTree::rotateLeft(RedBlackNode* x)
 {
-    RedBlackNode<Key, Value>* y{ x->right_ };
+    RedBlackNode* y{ x->right_ };
 
     x->right_ = y->left_;
     if (y->left_ != nil_)
@@ -365,10 +338,9 @@ void RedBlackTree<Key, Value>::rotateLeft(RedBlackNode<Key, Value>* x)
     x->parent_ = y;
 }
 
-template<typename Key, typename Value>
-void RedBlackTree<Key, Value>::rotateRight(RedBlackNode<Key, Value>* x)
+void RedBlackTree::rotateRight(RedBlackNode* x)
 {
-    RedBlackNode<Key, Value>* y{ x->left_ };
+    RedBlackNode* y{ x->left_ };
 
     x->left_ = y->right_;
     if (y->right_ != nil_)
@@ -394,14 +366,13 @@ void RedBlackTree<Key, Value>::rotateRight(RedBlackNode<Key, Value>* x)
     x->parent_ = y;
 }
 
-template<typename Key, typename Value>
-void RedBlackTree<Key, Value>::insertFix(RedBlackNode<Key, Value>* x)
+void RedBlackTree::insertFix(RedBlackNode* x)
 {
     while (x->parent_->color_ == Color::Red)
     {
         if (x->parent_ == x->parent_->parent_->left_)
         {
-            RedBlackNode<Key, Value>* y{ x->parent_->parent_->right_ };
+            RedBlackNode* y{ x->parent_->parent_->right_ };
             if (y->color_ == Color::Red)
             {
                 x->parent_->color_ = Color::Black;
@@ -424,7 +395,7 @@ void RedBlackTree<Key, Value>::insertFix(RedBlackNode<Key, Value>* x)
         }
         else
         {
-            RedBlackNode<Key, Value>* y{ x->parent_->parent_->left_ };
+            RedBlackNode* y{ x->parent_->parent_->left_ };
             if (y->color_ == Color::Red)
             {
                 x->parent_->color_ = Color::Black;
@@ -450,14 +421,13 @@ void RedBlackTree<Key, Value>::insertFix(RedBlackNode<Key, Value>* x)
     root_->color_ = Color::Black;
 }
 
-template<typename Key, typename Value>
-void RedBlackTree<Key, Value>::deleteFix(RedBlackNode<Key, Value>* x)
+void RedBlackTree::deleteFix(RedBlackNode* x)
 {
     while (x != root_ and x->color_ == Color::Black)
     {
         if (x == x->parent_->left_)
         {
-            RedBlackNode<Key, Value>* w = x->parent_->right_;
+            RedBlackNode* w = x->parent_->right_;
             if (w->color_ == Color::Red)
             {
                 w->color_ = Color::Black;
@@ -489,7 +459,7 @@ void RedBlackTree<Key, Value>::deleteFix(RedBlackNode<Key, Value>* x)
         }
         else
         {
-            RedBlackNode<Key, Value>* w = x->parent_->left_;
+            RedBlackNode* w = x->parent_->left_;
             if (w->color_ == Color::Red)
             {
                 w->color_ = Color::Black;
@@ -524,8 +494,7 @@ void RedBlackTree<Key, Value>::deleteFix(RedBlackNode<Key, Value>* x)
     x->color_ = Color::Black;
 }
 
-template<typename Key, typename Value>
-void RedBlackTree<Key, Value>::transplant(RedBlackNode<Key, Value>* u, RedBlackNode<Key, Value>* v)
+void RedBlackTree::transplant(RedBlackNode* u, RedBlackNode* v)
 {
     if (u == nil_)
     {
@@ -548,17 +517,16 @@ void RedBlackTree<Key, Value>::transplant(RedBlackNode<Key, Value>* u, RedBlackN
     v->parent_ = u->parent_;
 }
 
-template<typename Key, typename Value>
-void RedBlackTree<Key, Value>::print() const
+void RedBlackTree::print() const
 {
     const int NODE_WIDTH{ 3 };
     const int NODE_SPACE{ 1 };
 
-    std::vector<RedBlackNode<Key, Value>*> nodeList;
+    std::vector<RedBlackNode*> nodeList;
     int h{ height() };
     for (int level{ 0 }; level <= h; ++level)
     {
-        std::vector<RedBlackNode<Key, Value>*> nodeRow;
+        std::vector<RedBlackNode*> nodeRow;
 
         if (level == 0)
         {
@@ -568,7 +536,7 @@ void RedBlackTree<Key, Value>::print() const
         {
             for (unsigned int i{ 0 }; i < nodeList.size(); ++i)
             {
-                RedBlackNode<Key, Value>* x{ nodeList[i] };
+                RedBlackNode* x{ nodeList[i] };
                 if (isNull(x))
                 {
                     nodeRow.push_back(nullptr);
@@ -661,5 +629,3 @@ void RedBlackTree<Key, Value>::print() const
         nodeList = nodeRow;
     }
 }
-
-#endif // REDBLACKTREE_CPP

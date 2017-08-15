@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += console c++14
+CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 CONFIG += static
@@ -21,9 +21,7 @@ SOURCES += main.cpp \
     aatree.cpp \
     timer.cpp \
     treetest.cpp \
-    randomvalue.cpp \
-    treetest_template.cpp \
-    treetesthelper.cpp
+    randomvalue.cpp
 
 HEADERS += \
     binarysearchtree.hh \
@@ -32,7 +30,4 @@ HEADERS += \
     aatree.hh \
     timer.hh \
     treetest.hh \
-    randomvalue.hh \
-    treetesthelper.hh
-
-DISTFILES +=
+    randomvalue.hh

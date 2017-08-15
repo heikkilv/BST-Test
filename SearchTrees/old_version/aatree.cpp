@@ -4,9 +4,6 @@
 //
 // Ville Heikkilä
 
-#ifndef AATREE_CPP
-#define AATREE_CPP
-
 #include "aatree.hh"
 #include <algorithm>
 #include <iomanip>
@@ -17,7 +14,7 @@
 namespace
 {
 
-inline std::ostream& red2(std::ostream &s)
+inline std::ostream& red(std::ostream &s)
 {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hStdout,
@@ -25,7 +22,7 @@ inline std::ostream& red2(std::ostream &s)
     return s;
 }
 
-inline std::ostream& white2(std::ostream &s)
+inline std::ostream& white(std::ostream &s)
 {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hStdout,
@@ -35,38 +32,33 @@ inline std::ostream& white2(std::ostream &s)
 
 } // namespace
 
-template<typename Key, typename Value>
-AATree<Key, Value>::AATree() :
+AATree::AATree() :
     root_{ nullptr },
     nodes_{ 0 }
 {
 }
 
-template<typename Key, typename Value>
-AATree<Key, Value>::~AATree()
+AATree::~AATree()
 {
-    AANode<Key, Value>* node{ minimum() };
+    AANode* node{ minimum() };
     while (node != nullptr)
     {
-        erase(node->key_);
+        deleteNode(node);
         node = minimum();
     }
 }
 
-template<typename Key, typename Value>
-typename AATree<Key, Value>::size_type AATree<Key, Value>::size() const
+int AATree::nodes() const
 {
     return nodes_;
 }
 
-template<typename Key, typename Value>
-int AATree<Key, Value>::height() const
+int AATree::height() const
 {
     return height(root_);
 }
 
-template<typename Key, typename Value>
-int AATree<Key, Value>::height(AANode<Key, Value>* node) const
+int AATree::height(AANode* node) const
 {
     if (node == nullptr)
     {
@@ -79,13 +71,12 @@ int AATree<Key, Value>::height(AANode<Key, Value>* node) const
     return std::max(leftHeight, rightHeight);
 }
 
-template<typename Key, typename Value>
-void AATree<Key, Value>::clear()
+void AATree::clear()
 {
-    AANode<Key, Value>* node{ minimum() };
+    AANode* node{ minimum() };
     while (node != nullptr)
     {
-        erase(node->key_);
+        deleteNode(node);
         node = minimum();
     }
 
@@ -93,21 +84,19 @@ void AATree<Key, Value>::clear()
     nodes_ = 0;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::maximum() const
+AANode* AATree::maximum() const
 {
     return maximum(root_);
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::maximum(AANode<Key, Value>* node) const
+AANode* AATree::maximum(AANode* node) const
 {
     if (node == nullptr)
     {
         return nullptr;
     }
 
-    AANode<Key, Value>* x{ node };
+    AANode* x{ node };
     while (x->right_ != nullptr)
     {
         x = x->right_;
@@ -115,21 +104,19 @@ AANode<Key, Value>* AATree<Key, Value>::maximum(AANode<Key, Value>* node) const
     return x;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::minimum() const
+AANode* AATree::minimum() const
 {
     return minimum(root_);
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::minimum(AANode<Key, Value>* node) const
+AANode* AATree::minimum(AANode* node) const
 {
     if (node == nullptr)
     {
         return nullptr;
     }
 
-    AANode<Key, Value>* x{ node };
+    AANode* x{ node };
     while (x->left_ != nullptr)
     {
         x = x->left_;
@@ -137,8 +124,7 @@ AANode<Key, Value>* AATree<Key, Value>::minimum(AANode<Key, Value>* node) const
     return x;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::successor(AANode<Key, Value>* node) const
+AANode* AATree::successor(AANode* node) const
 {
     if (node == nullptr)
     {
@@ -150,8 +136,8 @@ AANode<Key, Value>* AATree<Key, Value>::successor(AANode<Key, Value>* node) cons
         return minimum(node->right_);
     }
 
-    AANode<Key, Value>* x{ node };
-    AANode<Key, Value>* y{ x->parent_ };
+    AANode* x{ node };
+    AANode* y{ x->parent_ };
     while (y != nullptr and x == y->right_)
     {
         x = y;
@@ -160,8 +146,7 @@ AANode<Key, Value>* AATree<Key, Value>::successor(AANode<Key, Value>* node) cons
     return y;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::predecessor(AANode<Key, Value>* node) const
+AANode* AATree::predecessor(AANode* node) const
 {
     if (node == nullptr)
     {
@@ -173,8 +158,8 @@ AANode<Key, Value>* AATree<Key, Value>::predecessor(AANode<Key, Value>* node) co
         return maximum(node->left_);
     }
 
-    AANode<Key, Value>* x{ node };
-    AANode<Key, Value>* y{ x->parent_ };
+    AANode* x{ node };
+    AANode* y{ x->parent_ };
     while (y != nullptr and x == y->left_)
     {
         x = y;
@@ -183,15 +168,14 @@ AANode<Key, Value>* AATree<Key, Value>::predecessor(AANode<Key, Value>* node) co
     return y;
 }
 
-template<typename Key, typename Value>
-bool AATree<Key, Value>::isInTree(AANode<Key, Value>* node) const
+bool AATree::isInTree(AANode* node) const
 {
     if (node == nullptr or root_ == nullptr)
     {
         return false;
     }
 
-    AANode<Key, Value>* x{ node };
+    AANode* x{ node };
     while (x != nullptr)
     {
         if (x == root_)
@@ -204,41 +188,30 @@ bool AATree<Key, Value>::isInTree(AANode<Key, Value>* node) const
     return false;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::find(const Key& key) const
+AANode* AATree::search(int key) const
 {
-    auto x{ root_ };
-    while (x != nullptr)
+    AANode* x{ root_ };
+    while (x != nullptr and x->key_ != key)
     {
         if (key < x->key_)
         {
             x = x->left_;
         }
-        else if (x->key_ < key)
-        {
-            x = x->right_;
-        }
         else
         {
-            return x;
+            x = x->right_;
         }
     }
     return x;
 }
 
-template<typename Key, typename Value>
-bool AATree<Key, Value>::insert(const value_type& value)
+void AATree::insertNode(AANode* node)
 {
-    if (find(value.first) != nullptr)
+    if (node == nullptr)
     {
-        return false;
+        return;
     }
-
-    AANode<Key, Value>* node{
-        new AANode<Key, Value>{ value.first, value.second, 1,
-                                nullptr, nullptr, nullptr } };
-
-    if (root_ == nullptr)
+    else if (root_ == nullptr)
     {
         root_ = node;
         ++nodes_;
@@ -247,17 +220,13 @@ bool AATree<Key, Value>::insert(const value_type& value)
     {
         root_ = insertNode(node, root_);
     }
-
-    return true;
 }
 
-template<typename Key, typename Value>
-typename AATree<Key, Value>::size_type AATree<Key, Value>::erase(const Key& key)
+void AATree::deleteNode(AANode* node)
 {
-    auto node{ find(key) };
-    if (node == nullptr)
+    if (not isInTree(node))
     {
-        return 0;
+        return;
     }
 
     --nodes_;
@@ -271,12 +240,9 @@ typename AATree<Key, Value>::size_type AATree<Key, Value>::erase(const Key& key)
     {
         delete node;
     }
-
-    return 1;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::skew(AANode<Key, Value>* node)
+AANode* AATree::skew(AANode* node)
 {
     if (node == nullptr)
     {
@@ -288,7 +254,7 @@ AANode<Key, Value>* AATree<Key, Value>::skew(AANode<Key, Value>* node)
     }
     else if (node->level_ == node->left_->level_)
     {
-        AANode<Key, Value>* L{ node->left_ };
+        AANode* L{ node->left_ };
         node->left_ = L->right_;
         if (node->left_ != nullptr)
         {
@@ -305,8 +271,7 @@ AANode<Key, Value>* AATree<Key, Value>::skew(AANode<Key, Value>* node)
     }
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::split(AANode<Key, Value>* node)
+AANode* AATree::split(AANode* node)
 {
     if (node == nullptr)
     {
@@ -318,7 +283,7 @@ AANode<Key, Value>* AATree<Key, Value>::split(AANode<Key, Value>* node)
     }
     else if (node->level_ == node->right_->right_->level_)
     {
-        AANode<Key, Value>* R{ node->right_ };
+        AANode* R{ node->right_ };
         node->right_ = R->left_;
         if (node->right_ != nullptr)
         {
@@ -336,8 +301,7 @@ AANode<Key, Value>* AATree<Key, Value>::split(AANode<Key, Value>* node)
     }
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::insertNode(AANode<Key, Value>* node, AANode<Key, Value>* rootNode)
+AANode* AATree::insertNode(AANode* node, AANode* rootNode)
 {
     if (node->key_ < rootNode->key_)
     {
@@ -379,8 +343,7 @@ AANode<Key, Value>* AATree<Key, Value>::insertNode(AANode<Key, Value>* node, AAN
     return rootNode;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::deleteNode(AANode<Key, Value>* node, AANode<Key, Value>* rootNode)
+AANode* AATree::deleteNode(AANode* node, AANode* rootNode)
 {
     if (rootNode == nullptr or node == nullptr)
     {
@@ -395,7 +358,7 @@ AANode<Key, Value>* AATree<Key, Value>::deleteNode(AANode<Key, Value>* node, AAN
         }
         else if (rootNode->left_ == nullptr)
         {
-            AANode<Key, Value>* L{ successor(rootNode) };
+            AANode* L{ successor(rootNode) };
             rootNode->right_ = deleteNode(L, rootNode->right_);
             if (rootNode->right_ != nullptr)
             {
@@ -407,7 +370,7 @@ AANode<Key, Value>* AATree<Key, Value>::deleteNode(AANode<Key, Value>* node, AAN
         }
         else
         {
-            AANode<Key, Value>* L{ predecessor(rootNode) };
+            AANode* L{ predecessor(rootNode) };
             rootNode->left_ = deleteNode(L, rootNode->left_);
             if (rootNode->left_ != nullptr)
             {
@@ -442,8 +405,7 @@ AANode<Key, Value>* AATree<Key, Value>::deleteNode(AANode<Key, Value>* node, AAN
     return rootNode;
 }
 
-template<typename Key, typename Value>
-AANode<Key, Value>* AATree<Key, Value>::decreaseLevel(AANode<Key, Value>* node)
+AANode* AATree::decreaseLevel(AANode* node)
 {
     if (node == nullptr)
     {
@@ -465,17 +427,16 @@ AANode<Key, Value>* AATree<Key, Value>::decreaseLevel(AANode<Key, Value>* node)
     return node;
 }
 
-template<typename Key, typename Value>
-void AATree<Key, Value>::print() const
+void AATree::print() const
 {
     const int NODE_WIDTH{ 3 };
     const int NODE_SPACE{ 1 };
 
-    std::vector<AANode<Key, Value>*> nodeList;
+    std::vector<AANode*> nodeList;
     int h{ height() };
     for (int level{ 0 }; level <= h; ++level)
     {
-        std::vector<AANode<Key, Value>*> nodeRow;
+        std::vector<AANode*> nodeRow;
 
         if (level == 0)
         {
@@ -485,7 +446,7 @@ void AATree<Key, Value>::print() const
         {
             for (unsigned int i{ 0 }; i < nodeList.size(); ++i)
             {
-                AANode<Key, Value>* x{ nodeList[i] };
+                AANode* x{ nodeList[i] };
                 if (x == nullptr)
                 {
                     nodeRow.push_back(nullptr);
@@ -558,7 +519,7 @@ void AATree<Key, Value>::print() const
                 if (nodeRow[i]->parent_ != nullptr and
                     nodeRow[i]->level_ == nodeRow[i]->parent_->level_)
                 {
-                    std::cout << red2 << nodeRow[i]->key_ << white2;
+                    std::cout << red << nodeRow[i]->key_ << white;
                 }
                 else
                 {
@@ -579,5 +540,3 @@ void AATree<Key, Value>::print() const
         nodeList = nodeRow;
     }
 }
-
-#endif // AATREE_CPP
