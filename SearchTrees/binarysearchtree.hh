@@ -10,55 +10,84 @@
 
 #include <utility>
 
-template<typename Key, typename Value>
-struct TreeNode
+enum class PrintColor
 {
-    Key key_;
-    Value value_;
-    TreeNode<Key, Value>* parent_;
-    TreeNode<Key, Value>* left_;
-    TreeNode<Key, Value>* right_;
+    White,
+    Red,
+    Blue
 };
 
 template<typename Key, typename Value>
+struct TreeNode
+{
+    using key_type = Key;
+    using mapped_type = Value;
+
+    key_type key_;
+    mapped_type value_;
+    TreeNode<key_type, mapped_type>* parent_;
+    TreeNode<key_type, mapped_type>* left_;
+    TreeNode<key_type, mapped_type>* right_;
+
+    TreeNode() :
+        key_{}, value_{},
+        parent_{}, left_{}, right_{}
+    {}
+
+    TreeNode(const key_type& key, const mapped_type& value,
+             TreeNode<key_type, mapped_type>* parent,
+             TreeNode<key_type, mapped_type>* left,
+             TreeNode<key_type, mapped_type>* right) :
+        key_{ key }, value_{ value },
+        parent_{ parent }, left_{ left }, right_{ right }
+    {}
+};
+
+template<typename Node>
 class BinarySearchTree
 {
 public:
-    using key_type = Key;
-    using mapped_type = Value;
+    using key_type = typename Node::key_type;
+    using mapped_type = typename Node::mapped_type;
     using value_type = std::pair<const key_type, mapped_type>;
     using size_type = unsigned int;
+    using node_type = Node;
 
     BinarySearchTree();
-    ~BinarySearchTree();
+    virtual ~BinarySearchTree();
 
-    size_type size() const;
-    int height() const;
-    int height(TreeNode<Key, Value>* node) const;
+    virtual size_type size() const;
+    virtual int height() const;
 
-    void clear();
+    virtual void clear();
 
-    TreeNode<Key, Value>* maximum() const;
-    TreeNode<Key, Value>* maximum(TreeNode<Key, Value>* node) const;
-    TreeNode<Key, Value>* minimum() const;
-    TreeNode<Key, Value>* minimum(TreeNode<Key, Value>* node) const;
+    virtual Node* maximum() const;
+    virtual Node* minimum() const;
 
-    TreeNode<Key, Value>* successor(TreeNode<Key, Value>* node) const;
-    TreeNode<Key, Value>* predecessor(TreeNode<Key, Value>* node) const;
+    virtual Node* successor(Node* node) const;
+    virtual Node* predecessor(Node* node) const;
 
-    bool isInTree(TreeNode<Key, Value>* node) const;
+    virtual bool isInTree(Node* node) const;
 
-    TreeNode<Key, Value>* find(const Key& key) const;
-    bool insert(const value_type& value);
-    size_type erase(const Key& key);
+    virtual Node* find(const key_type& key) const;
+    virtual bool insert(const value_type& value);
+    virtual size_type erase(const key_type& key);
 
-    void print() const;
+    virtual void print() const;
 
-private:
-    TreeNode<Key, Value>* root_;
+protected:
+    Node* nil_;
+    Node* root_;
     size_type nodes_;
 
-    void transplant(TreeNode<Key, Value>* u, TreeNode<Key, Value>* v);
+    virtual int height(Node* node) const;
+    virtual Node* maximum(Node* node) const;
+    virtual Node* minimum(Node* node) const;
+
+    PrintColor getPrintColor(Node* node) const;
+
+private:
+    void transplant(Node* u, Node* v);
 };
 
 #include "binarysearchtree.cpp"

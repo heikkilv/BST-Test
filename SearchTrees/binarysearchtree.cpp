@@ -12,41 +12,71 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <windows.h>
 
-template<typename Key, typename Value>
-BinarySearchTree<Key, Value>::BinarySearchTree() :
-    root_{ nullptr },
+namespace
+{
+
+inline std::ostream& print_white(std::ostream &s)
+{
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hStdout, FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+    return s;
+}
+
+inline std::ostream& print_red(std::ostream &s)
+{
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hStdout, FOREGROUND_RED|FOREGROUND_INTENSITY);
+    return s;
+}
+
+inline std::ostream& print_blue(std::ostream &s)
+{
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hStdout,
+            FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_INTENSITY);
+    return s;
+}
+
+} // namespace
+
+template<typename Node>
+BinarySearchTree<Node>::BinarySearchTree() :
+    nil_{ new Node{} },
+    root_{ nil_ },
     nodes_{ 0 }
 {
 }
 
-template<typename Key, typename Value>
-BinarySearchTree<Key, Value>::~BinarySearchTree()
+template<typename Node>
+BinarySearchTree<Node>::~BinarySearchTree()
 {
     auto node{ minimum() };
-    while (node != nullptr)
+    while (node != nil_)
     {
         erase(node->key_);
         node = minimum();
     }
+    delete nil_;
 }
 
-template<typename Key, typename Value>
-typename BinarySearchTree<Key, Value>::size_type BinarySearchTree<Key, Value>::size() const
+template<typename Node>
+typename BinarySearchTree<Node>::size_type BinarySearchTree<Node>::size() const
 {
     return nodes_;
 }
 
-template<typename Key, typename Value>
-int BinarySearchTree<Key, Value>::height() const
+template<typename Node>
+int BinarySearchTree<Node>::height() const
 {
     return height(root_);
 }
 
-template<typename Key, typename Value>
-int BinarySearchTree<Key, Value>::height(TreeNode<Key, Value>* node) const
+template<typename Node>
+int BinarySearchTree<Node>::height(Node* node) const
 {
-    if (node == nullptr)
+    if (node == nil_)
     {
         return -1;
     }
@@ -56,13 +86,13 @@ int BinarySearchTree<Key, Value>::height(TreeNode<Key, Value>* node) const
     int hMax{ 0 };
 
     auto x{ minimum() };
-    while (x != nullptr)
+    while (x != nil_)
     {
-        if (x->right_ != nullptr)
+        if (x->right_ != nil_)
         {
             x = x->right_;
             --h;
-            while (x->left_ != nullptr)
+            while (x->left_ != nil_)
             {
                 x = x->left_;
                 --h;
@@ -71,7 +101,7 @@ int BinarySearchTree<Key, Value>::height(TreeNode<Key, Value>* node) const
         else
         {
             auto y{ x->parent_ };
-            while (y != nullptr and x == y->right_)
+            while (y != nil_ and x == y->right_)
             {
                 x = y;
                 y = y->parent_;
@@ -81,11 +111,11 @@ int BinarySearchTree<Key, Value>::height(TreeNode<Key, Value>* node) const
             ++h;
         }
 
-        if (x != nullptr and h > hMax)
+        if (x != nil_ and h > hMax)
         {
             hMax = h;
         }
-        if (x != nullptr and h < hMin)
+        if (x != nil_ and h < hMin)
         {
             hMin = h;
         }
@@ -94,80 +124,80 @@ int BinarySearchTree<Key, Value>::height(TreeNode<Key, Value>* node) const
     return hMax - hMin;
 }
 
-template<typename Key, typename Value>
-void BinarySearchTree<Key, Value>::clear()
+template<typename Node>
+void BinarySearchTree<Node>::clear()
 {
     auto node{ minimum() };
-    while (node != nullptr)
+    while (node != nil_)
     {
         erase(node->key_);
         node = minimum();
     }
 
-    root_ = nullptr;
+    root_ = nil_;
     nodes_ = 0;
 }
 
-template<typename Key, typename Value>
-TreeNode<Key, Value>* BinarySearchTree<Key, Value>::maximum() const
+template<typename Node>
+Node* BinarySearchTree<Node>::maximum() const
 {
     return maximum(root_);
 }
 
-template<typename Key, typename Value>
-TreeNode<Key, Value>* BinarySearchTree<Key, Value>::maximum(TreeNode<Key, Value>* node) const
+template<typename Node>
+Node* BinarySearchTree<Node>::maximum(Node* node) const
 {
-    if (node == nullptr)
+    if (node == nil_)
     {
-        return nullptr;
+        return nil_;
     }
 
     auto x{ node };
-    while (x->right_ != nullptr)
+    while (x->right_ != nil_)
     {
         x = x->right_;
     }
     return x;
 }
 
-template<typename Key, typename Value>
-TreeNode<Key, Value>* BinarySearchTree<Key, Value>::minimum() const
+template<typename Node>
+Node* BinarySearchTree<Node>::minimum() const
 {
     return minimum(root_);
 }
 
-template<typename Key, typename Value>
-TreeNode<Key, Value>* BinarySearchTree<Key, Value>::minimum(TreeNode<Key, Value>* node) const
+template<typename Node>
+Node* BinarySearchTree<Node>::minimum(Node* node) const
 {
-    if (node == nullptr)
+    if (node == nil_)
     {
-        return nullptr;
+        return nil_;
     }
 
     auto x{ node };
-    while (x->left_ != nullptr)
+    while (x->left_ != nil_)
     {
         x = x->left_;
     }
     return x;
 }
 
-template<typename Key, typename Value>
-TreeNode<Key, Value>* BinarySearchTree<Key, Value>::successor(TreeNode<Key, Value>* node) const
+template<typename Node>
+Node* BinarySearchTree<Node>::successor(Node* node) const
 {
-    if (node == nullptr)
+    if (node == nil_)
     {
-        return nullptr;
+        return nil_;
     }
 
-    if (node->right_ != nullptr)
+    if (node->right_ != nil_)
     {
         return minimum(node->right_);
     }
 
     auto x{ node };
     auto y{ x->parent_ };
-    while (y != nullptr and x == y->right_)
+    while (y != nil_ and x == y->right_)
     {
         x = y;
         y = y->parent_;
@@ -175,22 +205,22 @@ TreeNode<Key, Value>* BinarySearchTree<Key, Value>::successor(TreeNode<Key, Valu
     return y;
 }
 
-template<typename Key, typename Value>
-TreeNode<Key, Value>* BinarySearchTree<Key, Value>::predecessor(TreeNode<Key, Value>* node) const
+template<typename Node>
+Node* BinarySearchTree<Node>::predecessor(Node* node) const
 {
-    if (node == nullptr)
+    if (node == nil_)
     {
-        return nullptr;
+        return nil_;
     }
 
-    if (node->left_ != nullptr)
+    if (node->left_ != nil_)
     {
         return maximum(node->left_);
     }
 
     auto x{ node };
     auto y{ x->parent_ };
-    while (y != nullptr and x == y->left_)
+    while (y != nil_ and x == y->left_)
     {
         x = y;
         y = y->parent_;
@@ -198,16 +228,16 @@ TreeNode<Key, Value>* BinarySearchTree<Key, Value>::predecessor(TreeNode<Key, Va
     return y;
 }
 
-template<typename Key, typename Value>
-bool BinarySearchTree<Key, Value>::isInTree(TreeNode<Key, Value>* node) const
+template<typename Node>
+bool BinarySearchTree<Node>::isInTree(Node* node) const
 {
-    if (node == nullptr or root_ == nullptr)
+    if (node == nil_ or root_ == nil_)
     {
         return false;
     }
 
     auto x{ node };
-    while (x != nullptr)
+    while (x != nil_)
     {
         if (x == root_)
         {
@@ -219,11 +249,11 @@ bool BinarySearchTree<Key, Value>::isInTree(TreeNode<Key, Value>* node) const
     return false;
 }
 
-template<typename Key, typename Value>
-TreeNode<Key, Value>* BinarySearchTree<Key, Value>::find(const Key& key) const
+template<typename Node>
+Node* BinarySearchTree<Node>::find(const key_type& key) const
 {
     auto x{ root_ };
-    while (x != nullptr)
+    while (x != nil_)
     {
         if (key < x->key_)
         {
@@ -241,13 +271,13 @@ TreeNode<Key, Value>* BinarySearchTree<Key, Value>::find(const Key& key) const
     return x;
 }
 
-template<typename Key, typename Value>
-bool BinarySearchTree<Key, Value>::insert(const value_type& value)
+template<typename Node>
+bool BinarySearchTree<Node>::insert(const value_type& value)
 {
-    TreeNode<Key, Value>* x{ root_ };
-    TreeNode<Key, Value>* parent{ nullptr };
+    Node* x{ root_ };
+    Node* parent{ nil_ };
 
-    while (x != nullptr)
+    while (x != nil_)
     {
         parent = x;
         if (value.first < x->key_)
@@ -265,11 +295,17 @@ bool BinarySearchTree<Key, Value>::insert(const value_type& value)
         }
     }
 
-    TreeNode<Key, Value>* node{
-        new TreeNode<Key, Value>{ value.first, value.second,
-                                  parent, nullptr, nullptr }};
+    Node* node{
+        new Node{ value.first, value.second,
+                  parent, nil_, nil_ } };
+//    Node* node{ new Node{} };
+//    node->key_ = value.first;
+//    node->value_ = value.second;
+//    node->parent_ = parent;
+//    node->left_ = nil_;
+//    node->right_ = nil_;
 
-    if (parent == nullptr)
+    if (parent == nil_)
     {
         root_ = node;
     }
@@ -286,26 +322,26 @@ bool BinarySearchTree<Key, Value>::insert(const value_type& value)
     return true;
 }
 
-template<typename Key, typename Value>
-typename BinarySearchTree<Key, Value>::size_type BinarySearchTree<Key, Value>::erase(const Key& key)
+template<typename Node>
+typename BinarySearchTree<Node>::size_type BinarySearchTree<Node>::erase(const key_type& key)
 {
     auto node{ find(key) };
-    if (node == nullptr)
+    if (node == nil_)
     {
         return 0;
     }
 
-    if (node->left_ == nullptr)
+    if (node->left_ == nil_)
     {
         transplant(node, node->right_);
     }
-    else if (node->right_ == nullptr)
+    else if (node->right_ == nil_)
     {
         transplant(node, node->left_);
     }
     else
     {
-        TreeNode<Key, Value>* y{ minimum(node->right_) };
+        Node* y{ minimum(node->right_) };
         if (y->parent_ != node)
         {
             transplant(y, y->right_);
@@ -322,16 +358,15 @@ typename BinarySearchTree<Key, Value>::size_type BinarySearchTree<Key, Value>::e
     return 1;
 }
 
-template<typename Key, typename Value>
-void BinarySearchTree<Key, Value>::transplant(TreeNode<Key, Value>* u,
-                                  TreeNode<Key, Value>* v)
+template<typename Node>
+void BinarySearchTree<Node>::transplant(Node* u, Node* v)
 {
-    if (u == nullptr)
+    if (u == nil_)
     {
         return;
     }
 
-    if (u->parent_ == nullptr)
+    if (u->parent_ == nil_)
     {
         root_ = v;
     }
@@ -344,23 +379,23 @@ void BinarySearchTree<Key, Value>::transplant(TreeNode<Key, Value>* u,
         u->parent_->right_ = v;
     }
 
-    if (v != nullptr)
+    if (v != nil_)
     {
         v->parent_ = u->parent_;
     }
 }
 
-template<typename Key, typename Value>
-void BinarySearchTree<Key, Value>::print() const
+template<typename Node>
+void BinarySearchTree<Node>::print() const
 {
     const int NODE_WIDTH{ 3 };
     const int NODE_SPACE{ 1 };
 
-    std::vector<TreeNode<Key, Value>*> nodeList;
+    std::vector<Node*> nodeList;
     int h{ height() };
     for (int level{ 0 }; level <= h; ++level)
     {
-        std::vector<TreeNode<Key, Value>*> nodeRow;
+        std::vector<Node*> nodeRow;
 
         if (level == 0)
         {
@@ -370,11 +405,11 @@ void BinarySearchTree<Key, Value>::print() const
         {
             for (unsigned int i{ 0 }; i < nodeList.size(); ++i)
             {
-                TreeNode<Key, Value>* x{ nodeList[i] };
-                if (x == nullptr)
+                Node* x{ nodeList[i] };
+                if (x == nil_)
                 {
-                    nodeRow.push_back(nullptr);
-                    nodeRow.push_back(nullptr);
+                    nodeRow.push_back(nil_);
+                    nodeRow.push_back(nil_);
                 }
                 else
                 {
@@ -402,7 +437,7 @@ void BinarySearchTree<Key, Value>::print() const
                     std::cout << std::setw(indent) << " ";
                 }
                 std::cout << std::setw(NODE_WIDTH);
-                if (nodeRow[i] != nullptr)
+                if (nodeRow[i] != nil_)
                 {
                     if (left)
                     {
@@ -437,10 +472,18 @@ void BinarySearchTree<Key, Value>::print() const
             {
                 std::cout << std::setw(indent) << " ";
             }
-            std::cout << std::setw(NODE_WIDTH);
-            if (nodeRow[i] != nullptr)
+            std::cout << std::setw(NODE_WIDTH) << std::right;
+            if (nodeRow[i] != nil_)
             {
-                std::cout << std::right << nodeRow[i]->key_;
+                if (getPrintColor(nodeRow[i]) == PrintColor::Red)
+                {
+                    std::cout << print_red;
+                }
+                else if (getPrintColor(nodeRow[i]) == PrintColor::Blue)
+                {
+                    std::cout << print_blue;
+                }
+                std::cout << nodeRow[i]->key_ << print_white;
             }
             else
             {
@@ -455,6 +498,59 @@ void BinarySearchTree<Key, Value>::print() const
 
         nodeList = nodeRow;
     }
+}
+
+struct color_failure
+{};
+
+template<typename T>
+struct color_success : std::true_type
+{};
+
+template<>
+struct color_success<color_failure> : std::false_type
+{};
+
+template<typename T>
+struct get_color_result
+{
+private:
+    template<typename X>
+    static auto check(X* x) -> decltype(x->getPrintColor());
+    static color_failure check(...);
+public:
+    using type = decltype(check(std::declval<T*>()));
+};
+
+template<typename T>
+struct has_color : color_success<typename get_color_result<T>::type>
+{};
+
+template<typename T>
+constexpr bool Has_color()
+{
+    return has_color<T>::value;
+}
+
+template<typename Node, bool C = Has_color<Node>()>
+struct ColorStruct
+{
+    PrintColor color_;
+    ColorStruct<Node, C>(Node* node) : color_{ node->getPrintColor() } {}
+};
+
+template<typename Node>
+struct ColorStruct<Node, false>
+{
+    PrintColor color_;
+    ColorStruct<Node, false>(...) : color_{ PrintColor::White } {}
+};
+
+template<typename Node>
+PrintColor BinarySearchTree<Node>::getPrintColor(Node* node) const
+{
+    ColorStruct<Node, Has_color<Node>()> colorStruct{ node };
+    return colorStruct.color_;
 }
 
 #endif // BINARYSEARCHTREE_CPP

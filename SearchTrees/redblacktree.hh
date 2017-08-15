@@ -8,6 +8,7 @@
 #ifndef REDBLACKTREE_HH
 #define REDBLACKTREE_HH
 
+#include "binarysearchtree.hh"
 #include <utility>
 
 enum class Color
@@ -19,59 +20,69 @@ enum class Color
 template<typename Key, typename Value>
 struct RedBlackNode
 {
-    Key key_;
-    Value value_;
-    Color color_;
-    RedBlackNode<Key, Value>* parent_;
-    RedBlackNode<Key, Value>* left_;
-    RedBlackNode<Key, Value>* right_;
-};
-
-template<typename Key, typename Value>
-class RedBlackTree
-{
-public:
     using key_type = Key;
     using mapped_type = Value;
+
+    key_type key_;
+    mapped_type value_;
+    RedBlackNode<key_type, mapped_type>* parent_;
+    RedBlackNode<key_type, mapped_type>* left_;
+    RedBlackNode<key_type, mapped_type>* right_;
+    Color color_;
+
+    RedBlackNode() :
+        key_{}, value_{},
+        parent_{}, left_{}, right_{},
+        color_{ Color::Black }
+    {}
+
+    RedBlackNode(const key_type& key, const mapped_type& value,
+                 RedBlackNode<key_type, mapped_type>* parent,
+                 RedBlackNode<key_type, mapped_type>* left,
+                 RedBlackNode<key_type, mapped_type>* right) :
+        key_{ key }, value_{ value },
+        parent_{ parent }, left_{ left }, right_{ right },
+        color_{ Color::Black }
+    {}
+
+    RedBlackNode(const key_type& key, const mapped_type& value,
+                 RedBlackNode<key_type, mapped_type>* parent,
+                 RedBlackNode<key_type, mapped_type>* left,
+                 RedBlackNode<key_type, mapped_type>* right,
+                 Color color) :
+        key_{ key }, value_{ value },
+        parent_{ parent }, left_{ left }, right_{ right },
+        color_{ color }
+    {}
+
+    PrintColor getPrintColor()
+    {
+        return (color_ == Color::Red) ? PrintColor::Red : PrintColor::White;
+    }
+};
+
+template<typename Node>
+class RedBlackTree : public BinarySearchTree<Node>
+{
+public:
+    using key_type = typename Node::key_type;
+    using mapped_type = typename Node::mapped_type;
     using value_type = std::pair<const key_type, mapped_type>;
-    using size_type = unsigned int;
+    using size_type = typename BinarySearchTree<Node>::size_type;
+    using node_type = Node;
 
     RedBlackTree();
-    ~RedBlackTree();
+    virtual ~RedBlackTree();
 
-    size_type size() const;
-    int height() const;
-    int height(RedBlackNode<Key, Value>* node) const;
-    bool isNull(RedBlackNode<Key, Value>* node) const;
-
-    void clear();
-
-    RedBlackNode<Key, Value>* maximum() const;
-    RedBlackNode<Key, Value>* maximum(RedBlackNode<Key, Value>* node) const;
-    RedBlackNode<Key, Value>* minimum() const;
-    RedBlackNode<Key, Value>* minimum(RedBlackNode<Key, Value>* node) const;
-
-    RedBlackNode<Key, Value>* successor(RedBlackNode<Key, Value>* node) const;
-    RedBlackNode<Key, Value>* predecessor(RedBlackNode<Key, Value>* node) const;
-
-    bool isInTree(RedBlackNode<Key, Value>* node) const;
-
-    RedBlackNode<Key, Value>* find(const Key& key) const;
-    bool insert(const value_type& value);
-    size_type erase(const Key& key);
-
-    void print() const;
+    virtual bool insert(const value_type& value);
+    virtual size_type erase(const key_type& key);
 
 private:
-    RedBlackNode<Key, Value>* nil_;
-    RedBlackNode<Key, Value>* root_;
-    size_type nodes_;
-
-    void rotateLeft(RedBlackNode<Key, Value>* x);
-    void rotateRight(RedBlackNode<Key, Value>* x);
-    void insertFix(RedBlackNode<Key, Value>* x);
-    void deleteFix(RedBlackNode<Key, Value>* x);
-    void transplant(RedBlackNode<Key, Value>* u, RedBlackNode<Key, Value>* v);
+    void rotateLeft(Node* x);
+    void rotateRight(Node* x);
+    void insertFix(Node* x);
+    void deleteFix(Node* x);
+    void transplant(Node* u, Node* v);
 };
 
 #include "redblacktree.cpp"

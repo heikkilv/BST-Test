@@ -8,238 +8,25 @@
 #define AVLTREE_CPP
 
 #include "avltree.hh"
-#include <iomanip>
-#include <iostream>
-#include <vector>
-#include <windows.h>
 
-namespace
-{
-
-inline std::ostream& blue(std::ostream &s)
-{
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hStdout,
-            FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_INTENSITY);
-    return s;
-}
-
-inline std::ostream& red(std::ostream &s)
-{
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hStdout,
-            FOREGROUND_RED|FOREGROUND_INTENSITY);
-    return s;
-}
-
-inline std::ostream& white(std::ostream &s)
-{
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hStdout,
-            FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
-    return s;
-}
-
-} // namespace
-
-template<typename Key, typename Value>
-AVLTree<Key, Value>::AVLTree() :
-    root_{ nullptr },
-    nodes_{ 0 }
+template<typename Node>
+AVLTree<Node>::AVLTree() :
+    BinarySearchTree<Node>{}
 {
 }
 
-template<typename Key, typename Value>
-AVLTree<Key, Value>::~AVLTree()
+template<typename Node>
+AVLTree<Node>::~AVLTree()
 {
-    AVLNode<Key, Value>* node{ minimum() };
-    while (node != nullptr)
-    {
-        erase(node->key_);
-        node = minimum();
-    }
 }
 
-template<typename Key, typename Value>
-typename AVLTree<Key, Value>::size_type AVLTree<Key, Value>::size() const
+template<typename Node>
+bool AVLTree<Node>::insert(const value_type& value)
 {
-    return nodes_;
-}
+    Node* x{ this->root_ };
+    Node* parent{ this->nil_ };
 
-template<typename Key, typename Value>
-int AVLTree<Key, Value>::height() const
-{
-    return height(root_);
-}
-
-template<typename Key, typename Value>
-int AVLTree<Key, Value>::height(AVLNode<Key, Value>* node) const
-{
-    if (node == nullptr)
-    {
-        return -1;
-    }
-
-    int leftHeight{ node->left_ == nullptr ? 0 : height(node->left_) + 1 };
-    int rightHeight{ node->right_ == nullptr ? 0 : height(node->right_) + 1 };
-
-    return std::max(leftHeight, rightHeight);
-}
-
-template<typename Key, typename Value>
-void AVLTree<Key, Value>::clear()
-{
-    AVLNode<Key, Value>* node{ minimum() };
-    while (node != nullptr)
-    {
-        erase(node->key_);
-        node = minimum();
-    }
-
-    root_ = nullptr;
-    nodes_ = 0;
-}
-
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::maximum() const
-{
-    return maximum(root_);
-}
-
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::maximum(AVLNode<Key, Value>* node) const
-{
-    if (node == nullptr)
-    {
-        return nullptr;
-    }
-
-    AVLNode<Key, Value>* x{ node };
-    while (x->right_ != nullptr)
-    {
-        x = x->right_;
-    }
-    return x;
-}
-
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::minimum() const
-{
-    return minimum(root_);
-}
-
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::minimum(AVLNode<Key, Value>* node) const
-{
-    if (node == nullptr)
-    {
-        return nullptr;
-    }
-
-    AVLNode<Key, Value>* x{ node };
-    while (x->left_ != nullptr)
-    {
-        x = x->left_;
-    }
-    return x;
-}
-
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::successor(AVLNode<Key, Value>* node) const
-{
-    if (node == nullptr)
-    {
-        return nullptr;
-    }
-
-    if (node->right_ != nullptr)
-    {
-        return minimum(node->right_);
-    }
-
-    AVLNode<Key, Value>* x{ node };
-    AVLNode<Key, Value>* y{ x->parent_ };
-    while (y != nullptr and x == y->right_)
-    {
-        x = y;
-        y = y->parent_;
-    }
-    return y;
-}
-
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::predecessor(AVLNode<Key, Value>* node) const
-{
-    if (node == nullptr)
-    {
-        return nullptr;
-    }
-
-    if (node->left_ != nullptr)
-    {
-        return maximum(node->left_);
-    }
-
-    AVLNode<Key, Value>* x{ node };
-    AVLNode<Key, Value>* y{ x->parent_ };
-    while (y != nullptr and x == y->left_)
-    {
-        x = y;
-        y = y->parent_;
-    }
-    return y;
-}
-
-template<typename Key, typename Value>
-bool AVLTree<Key, Value>::isInTree(AVLNode<Key, Value>* node) const
-{
-    if (node == nullptr or root_ == nullptr)
-    {
-        return false;
-    }
-
-    AVLNode<Key, Value>* x{ node };
-    while (x != nullptr)
-    {
-        if (x == root_)
-        {
-            return true;
-        }
-        x = x->parent_;
-    }
-
-    return false;
-}
-
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::find(const Key& key) const
-{
-    auto x{ root_ };
-    while (x != nullptr)
-    {
-        if (key < x->key_)
-        {
-            x = x->left_;
-        }
-        else if (x->key_ < key)
-        {
-            x = x->right_;
-        }
-        else
-        {
-            return x;
-        }
-    }
-    return x;
-}
-
-template<typename Key, typename Value>
-bool AVLTree<Key, Value>::insert(const value_type& value)
-{
-    AVLNode<Key, Value>* x{ root_ };
-    AVLNode<Key, Value>* parent{ nullptr };
-
-    while (x != nullptr)
+    while (x != this->nil_)
     {
         parent = x;
         if (value.first < x->key_)
@@ -256,16 +43,15 @@ bool AVLTree<Key, Value>::insert(const value_type& value)
         }
     }
 
-    AVLNode<Key, Value>* node{
-        new AVLNode<Key, Value>{ value.first, value.second, 0,
-                                  parent, nullptr, nullptr } };
+    Node* node{
+        new Node{ value.first, value.second,
+                  parent, this->nil_, this->nil_, 0 } };
 
-    ++nodes_;
+    ++this->nodes_;
 
-    if (parent == nullptr)
+    if (parent == this->nil_)
     {
-        root_ = node;
-//        root_->balance_ = 0;
+        this->root_ = node;
     }
     else if (node->key_ < parent->key_)
     {
@@ -277,41 +63,42 @@ bool AVLTree<Key, Value>::insert(const value_type& value)
         parent->right_ = node;
         insertBalance(parent, -1);
     }
+
     return true;
 }
 
-template<typename Key, typename Value>
-typename AVLTree<Key, Value>::size_type AVLTree<Key, Value>::erase(const Key& key)
+template<typename Node>
+typename AVLTree<Node>::size_type AVLTree<Node>::erase(const key_type& key)
 {
-    auto node{ find(key) };
-    if (node == nullptr)
+    auto node{ this->find(key) };
+    if (node == this->nil_)
     {
         return 0;
     }
 
-    AVLNode<Key, Value>* left{ node->left_ };
-    AVLNode<Key, Value>* right{ node->right_ };
+    Node* left{ node->left_ };
+    Node* right{ node->right_ };
 
-    if (left == nullptr)
+    if (left == this->nil_)
     {
-        if (right == nullptr)
+        if (right == this->nil_)
         {
-            if (node == root_)
+            if (node == this->root_)
             {
-                delete root_;
-                root_ = nullptr;
+                delete this->root_;
+                this->root_ = this->nil_;
             }
             else
             {
                 if (node->parent_->left_ == node)
                 {
-                    node->parent_->left_ = nullptr;
+                    node->parent_->left_ = this->nil_;
                     deleteBalance(node->parent_, -1);
                     delete node;
                 }
                 else
                 {
-                    node->parent_->right_ = nullptr;
+                    node->parent_->right_ = this->nil_;
                     deleteBalance(node->parent_, 1);
                     delete node;
                 }
@@ -323,28 +110,28 @@ typename AVLTree<Key, Value>::size_type AVLTree<Key, Value>::erase(const Key& ke
             deleteBalance(node, 0);
         }
     }
-    else if (right == nullptr)
+    else if (right == this->nil_)
     {
         replace(node, left);
         deleteBalance(node, 0);
     }
     else
     {
-        AVLNode<Key, Value>* successor{ right };
-        if (successor->left_ == nullptr)
+        Node* successor{ right };
+        if (successor->left_ == this->nil_)
         {
             successor->parent_ = node->parent_;
             successor->left_ = left;
             successor->balance_ = node->balance_;
 
-            if (left != nullptr)
+            if (left != this->nil_)
             {
                 left->parent_ = successor;
             }
 
-            if (node == root_)
+            if (node == this->root_)
             {
-                root_ = successor;
+                this->root_ = successor;
             }
             else
             {
@@ -363,13 +150,13 @@ typename AVLTree<Key, Value>::size_type AVLTree<Key, Value>::erase(const Key& ke
         }
         else
         {
-            while (successor->left_ != nullptr)
+            while (successor->left_ != this->nil_)
             {
                 successor = successor->left_;
             }
 
-            AVLNode<Key, Value>* successorParent{ successor->parent_ };
-            AVLNode<Key, Value>* successorRight{ successor->right_ };
+            Node* successorParent{ successor->parent_ };
+            Node* successorRight{ successor->right_ };
 
             if (successorParent->left_ == successor)
             {
@@ -380,7 +167,7 @@ typename AVLTree<Key, Value>::size_type AVLTree<Key, Value>::erase(const Key& ke
                 successorParent->right_ = successorRight;
             }
 
-            if (successorRight != nullptr)
+            if (successorRight != this->nil_)
             {
                 successorRight->parent_ = successorParent;
             }
@@ -391,14 +178,14 @@ typename AVLTree<Key, Value>::size_type AVLTree<Key, Value>::erase(const Key& ke
             successor->right_ = right;
             right->parent_ = successor;
 
-            if (left != nullptr)
+            if (left != this->nil_)
             {
                 left->parent_ = successor;
             }
 
-            if (node == root_)
+            if (node == this->root_)
             {
-                root_ = successor;
+                this->root_ = successor;
             }
             else
             {
@@ -417,14 +204,14 @@ typename AVLTree<Key, Value>::size_type AVLTree<Key, Value>::erase(const Key& ke
         }
     }
 
-    --nodes_;
+    --this->nodes_;
     return 1;
 }
 
-template<typename Key, typename Value>
-void AVLTree<Key, Value>::insertBalance(AVLNode<Key, Value>* node, int balance)
+template<typename Node>
+void AVLTree<Node>::insertBalance(Node* node, int balance)
 {
-    while (node != nullptr)
+    while (node != this->nil_)
     {
         node->balance_ += balance;
         balance = node->balance_;
@@ -460,7 +247,7 @@ void AVLTree<Key, Value>::insertBalance(AVLNode<Key, Value>* node, int balance)
             return;
         }
 
-        if (node->parent_ != nullptr)
+        if (node->parent_ != this->nil_)
         {
             balance = (node->parent_->left_ == node) ? 1 : -1;
         }
@@ -469,26 +256,26 @@ void AVLTree<Key, Value>::insertBalance(AVLNode<Key, Value>* node, int balance)
     }
 }
 
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::rotateLeft(AVLNode<Key, Value>* node)
+template<typename Node>
+Node* AVLTree<Node>::rotateLeft(Node* node)
 {
-    AVLNode<Key, Value>* right{ node->right_ };
-    AVLNode<Key, Value>* rightleft{ right->left_ };
-    AVLNode<Key, Value>* parent{ node->parent_ };
+    Node* right{ node->right_ };
+    Node* rightleft{ right->left_ };
+    Node* parent{ node->parent_ };
 
     right->parent_ = parent;
     right->left_ = node;
     node->right_ = rightleft;
     node->parent_ = right;
 
-    if (rightleft != nullptr)
+    if (rightleft != this->nil_)
     {
         rightleft->parent_ = node;
     }
 
-    if (node == root_)
+    if (node == this->root_)
     {
-        root_ = right;
+        this->root_ = right;
     }
     else if (parent->right_ == node)
     {
@@ -505,26 +292,26 @@ AVLNode<Key, Value>* AVLTree<Key, Value>::rotateLeft(AVLNode<Key, Value>* node)
     return right;
 }
 
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::rotateRight(AVLNode<Key, Value>* node)
+template<typename Node>
+Node* AVLTree<Node>::rotateRight(Node* node)
 {
-    AVLNode<Key, Value>* left{ node->left_ };
-    AVLNode<Key, Value>* leftright{ left->right_ };
-    AVLNode<Key, Value>* parent{ node->parent_ };
+    Node* left{ node->left_ };
+    Node* leftright{ left->right_ };
+    Node* parent{ node->parent_ };
 
     left->parent_ = parent;
     left->right_ = node;
     node->left_ = leftright;
     node->parent_ = left;
 
-    if (leftright != nullptr)
+    if (leftright != this->nil_)
     {
         leftright->parent_ = node;
     }
 
-    if (node == root_)
+    if (node == this->root_)
     {
-        root_ = left;
+        this->root_ = left;
     }
     else if (parent->left_ == node)
     {
@@ -541,14 +328,14 @@ AVLNode<Key, Value>* AVLTree<Key, Value>::rotateRight(AVLNode<Key, Value>* node)
     return left;
 }
 
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::rotateLeftRight(AVLNode<Key, Value>* node)
+template<typename Node>
+Node* AVLTree<Node>::rotateLeftRight(Node* node)
 {
-    AVLNode<Key, Value>* left{ node->left_ };
-    AVLNode<Key, Value>* leftright{ left->right_ };
-    AVLNode<Key, Value>* parent{ node->parent_ };
-    AVLNode<Key, Value>* leftrightleft = leftright->left_;
-    AVLNode<Key, Value>* leftrightright = leftright->right_;
+    Node* left{ node->left_ };
+    Node* leftright{ left->right_ };
+    Node* parent{ node->parent_ };
+    Node* leftrightleft = leftright->left_;
+    Node* leftrightright = leftright->right_;
 
     leftright->parent_ = parent;
     node->left_ = leftrightright;
@@ -558,19 +345,19 @@ AVLNode<Key, Value>* AVLTree<Key, Value>::rotateLeftRight(AVLNode<Key, Value>* n
     left->parent_ = leftright;
     node->parent_ = leftright;
 
-    if (leftrightright != nullptr)
+    if (leftrightright != this->nil_)
     {
         leftrightright->parent_ = node;
     }
 
-    if (leftrightleft != nullptr)
+    if (leftrightleft != this->nil_)
     {
         leftrightleft->parent_ = left;
     }
 
-    if (node == root_)
+    if (node == this->root_)
     {
-        root_ = leftright;
+        this->root_ = leftright;
     }
     else if (parent->left_ == node)
     {
@@ -602,14 +389,14 @@ AVLNode<Key, Value>* AVLTree<Key, Value>::rotateLeftRight(AVLNode<Key, Value>* n
     return leftright;
 }
 
-template<typename Key, typename Value>
-AVLNode<Key, Value>* AVLTree<Key, Value>::rotateRightLeft(AVLNode<Key, Value>* node)
+template<typename Node>
+Node* AVLTree<Node>::rotateRightLeft(Node* node)
 {
-    AVLNode<Key, Value>* right{ node->right_ };
-    AVLNode<Key, Value>* rightleft{ right->left_ };
-    AVLNode<Key, Value>* parent{ node->parent_ };
-    AVLNode<Key, Value>* rightleftleft = rightleft->left_;
-    AVLNode<Key, Value>* rightleftright = rightleft->right_;
+    Node* right{ node->right_ };
+    Node* rightleft{ right->left_ };
+    Node* parent{ node->parent_ };
+    Node* rightleftleft = rightleft->left_;
+    Node* rightleftright = rightleft->right_;
 
     rightleft->parent_ = parent;
     node->right_ = rightleftleft;
@@ -619,19 +406,19 @@ AVLNode<Key, Value>* AVLTree<Key, Value>::rotateRightLeft(AVLNode<Key, Value>* n
     right->parent_ = rightleft;
     node->parent_ = rightleft;
 
-    if (rightleftleft != nullptr)
+    if (rightleftleft != this->nil_)
     {
         rightleftleft->parent_ = node;
     }
 
-    if (rightleftright != nullptr)
+    if (rightleftright != this->nil_)
     {
         rightleftright->parent_ = right;
     }
 
-    if (node == root_)
+    if (node == this->root_)
     {
-        root_ = rightleft;
+        this->root_ = rightleft;
     }
     else if (parent->right_ == node)
     {
@@ -663,10 +450,10 @@ AVLNode<Key, Value>* AVLTree<Key, Value>::rotateRightLeft(AVLNode<Key, Value>* n
     return rightleft;
 }
 
-template<typename Key, typename Value>
-void AVLTree<Key, Value>::deleteBalance(AVLNode<Key, Value>* node, int balance)
+template<typename Node>
+void AVLTree<Node>::deleteBalance(Node* node, int balance)
 {
-    while (node != nullptr)
+    while (node != this->nil_)
     {
         node->balance_ += balance;
         balance = node->balance_;
@@ -708,7 +495,7 @@ void AVLTree<Key, Value>::deleteBalance(AVLNode<Key, Value>* node, int balance)
             return;
         }
 
-        if (node->parent_ != nullptr)
+        if (node->parent_ != this->nil_)
         {
             balance = (node->parent_->left_ == node) ? -1 : 1;
         }
@@ -717,144 +504,25 @@ void AVLTree<Key, Value>::deleteBalance(AVLNode<Key, Value>* node, int balance)
     }
 }
 
-template<typename Key, typename Value>
-void AVLTree<Key, Value>::replace(AVLNode<Key, Value>* target, AVLNode<Key, Value>* source)
+template<typename Node>
+void AVLTree<Node>::replace(Node* target, Node* source)
 {
     target->balance_ = source->balance_;
     target->key_ = source->key_;
     target->left_ = source->left_;
     target->right_ = source->right_;
 
-    if (source->left_ != nullptr)
+    if (source->left_ != this->nil_)
     {
         source->left_->parent_ = target;
     }
 
-    if (source->right_ != nullptr)
+    if (source->right_ != this->nil_)
     {
         source->right_->parent_ = target;
     }
 
     delete source;
-}
-
-template<typename Key, typename Value>
-void AVLTree<Key, Value>::print() const
-{
-    const int NODE_WIDTH{ 3 };
-    const int NODE_SPACE{ 1 };
-
-    std::vector<AVLNode<Key, Value>*> nodeList;
-    int h{ height() };
-    for (int level{ 0 }; level <= h; ++level)
-    {
-        std::vector<AVLNode<Key, Value>*> nodeRow;
-
-        if (level == 0)
-        {
-            nodeRow.push_back(root_);
-        }
-        else
-        {
-            for (unsigned int i{ 0 }; i < nodeList.size(); ++i)
-            {
-                AVLNode<Key, Value>* x{ nodeList[i] };
-                if (x == nullptr)
-                {
-                    nodeRow.push_back(nullptr);
-                    nodeRow.push_back(nullptr);
-                }
-                else
-                {
-                    nodeRow.push_back(x->left_);
-                    nodeRow.push_back(x->right_);
-                }
-            }
-        }
-
-        int factor{ (NODE_WIDTH+NODE_SPACE)/2 };
-        int indent{ factor * ((1 << (h - level)) - 1) };
-
-        if (level > 0)
-        {
-            bool left{ true };
-            for (unsigned int i{ 0 }; i < nodeRow.size(); ++i)
-            {
-
-                if (i > 0)
-                {
-                    std::cout << std::setw(NODE_SPACE) << " ";
-                }
-                if (indent > 0)
-                {
-                    std::cout << std::setw(indent) << " ";
-                }
-                std::cout << std::setw(NODE_WIDTH);
-                if (nodeRow[i] != nullptr)
-                {
-                    if (left)
-                    {
-                        std::cout << std::right << "/";
-                    }
-                    else
-                    {
-                        std::cout << std::left << "\\";
-                    }
-                }
-                else
-                {
-                    std::cout << " ";
-                }
-                if (i < nodeRow.size() - 1 and indent > 0)
-                {
-                    std::cout << std::setw(indent) << " ";
-                }
-
-                left = not left;
-            }
-            std::cout << std::endl;
-        }
-
-        for (unsigned int i{ 0 }; i < nodeRow.size(); ++i)
-        {
-            if (i > 0)
-            {
-                std::cout << std::setw(NODE_SPACE) << " ";
-            }
-            if (indent > 0)
-            {
-                std::cout << std::setw(indent) << " ";
-            }
-            std::cout << std::setw(NODE_WIDTH);
-            if (nodeRow[i] != nullptr)
-            {
-                std::cout << std::setw(NODE_WIDTH) <<std::right;
-                if (nodeRow[i]->balance_ == -1)
-                {
-                    std::cout << red << nodeRow[i]->key_ << white;
-                }
-                else if (nodeRow[i]->balance_ == 1)
-                {
-                    std::cout << blue << nodeRow[i]->key_ << white;
-                }
-                else
-                {
-                    std::cout << nodeRow[i]->key_;
-                }
-            }
-            else
-            {
-                std::cout << " ";
-            }
-            if (i + 1 < nodeRow.size() and indent > 0)
-            {
-                std::cout << std::setw(indent) << " ";
-            }
-        }
-        std::cout << std::endl;
-
-        nodeList = nodeRow;
-    }
 }
 
 #endif // AVTREE_CPP

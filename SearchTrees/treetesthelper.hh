@@ -13,14 +13,14 @@
 #include <string>
 #include <vector>
 
-const bool VERBOSE = true;
+const bool VERBOSE = false;
 
 using key_type = int;
 using data_type = std::string;
-using bst_tree = BinarySearchTree<key_type, data_type>;
-using rbt_tree = RedBlackTree<key_type, data_type>;
-using avl_tree = AVLTree<key_type, data_type>;
-using aa_tree = AATree<key_type, data_type>;
+using bst_tree = BinarySearchTree<TreeNode<key_type, data_type>>;
+using rbt_tree = RedBlackTree<RedBlackNode<key_type, data_type>>;
+using avl_tree = AVLTree<AVLNode<key_type, data_type>>;
+using aa_tree = AATree<AANode<key_type, data_type>>;
 using map_tree = std::map<key_type, data_type>;
 
 // A struct for storing the test results

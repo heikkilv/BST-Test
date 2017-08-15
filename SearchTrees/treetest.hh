@@ -30,10 +30,10 @@ struct Test
 const std::vector<Test> TEST_LIST
 {
     { "A", false, RandomType::ordered, RandomType::ordered },
-//    { "B", true, RandomType::nearlyOrdered, RandomType::uniform },
-//    { "C", true, RandomType::uniform, RandomType::ordered },
-//    { "D", false, RandomType::ordered, RandomType::uniform },
-//    { "E", true, RandomType::nearlyOrdered, RandomType::ordered },
+    { "B", true, RandomType::nearlyOrdered, RandomType::uniform },
+    { "C", true, RandomType::uniform, RandomType::ordered },
+    { "D", false, RandomType::ordered, RandomType::uniform },
+    { "E", true, RandomType::nearlyOrdered, RandomType::ordered },
     { "F", true, RandomType::uniform, RandomType::uniform }
 };
 

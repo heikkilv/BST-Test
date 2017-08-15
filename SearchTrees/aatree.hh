@@ -7,62 +7,85 @@
 #ifndef AATREE_HH
 #define AATREE_HH
 
+#include "binarysearchtree.hh"
 #include <utility>
 
 template<typename Key, typename Value>
 struct AANode
 {
-    Key key_;
-    Value value_;
-    int level_;
-    AANode<Key, Value>* parent_;
-    AANode<Key, Value>* left_;
-    AANode<Key, Value>* right_;
-};
-
-template<typename Key, typename Value>
-class AATree
-{
-public:
     using key_type = Key;
     using mapped_type = Value;
+    const static int DEFAULT_LEVEL = 1;
+    const static int NULL_LEVEL = -10;
+
+    key_type key_;
+    mapped_type value_;
+    AANode<key_type, mapped_type>* parent_;
+    AANode<key_type, mapped_type>* left_;
+    AANode<key_type, mapped_type>* right_;
+    int level_;
+
+    AANode() :
+        key_{}, value_{},
+        parent_{}, left_{}, right_{},
+        level_{ NULL_LEVEL }
+    {}
+
+    AANode(const key_type& key, const mapped_type& value,
+           AANode<key_type, mapped_type>* parent,
+           AANode<key_type, mapped_type>* left,
+           AANode<key_type, mapped_type>* right) :
+        key_{ key }, value_{ value },
+        parent_{ parent }, left_{ left }, right_{ right },
+        level_{ DEFAULT_LEVEL }
+    {}
+
+    AANode(const key_type& key, const mapped_type& value,
+            AANode<key_type, mapped_type>* parent,
+            AANode<key_type, mapped_type>* left,
+            AANode<key_type, mapped_type>* right,
+            int level) :
+        key_{ key }, value_{ value },
+        parent_{ parent }, left_{ left }, right_{ right },
+        level_{ level }
+    {}
+
+    PrintColor getPrintColor()
+    {
+        if (level_ != NULL_LEVEL and parent_ != nullptr and
+            parent_->level_ != NULL_LEVEL and level_ == parent_->level_)
+        {
+            return PrintColor::Red;
+        }
+        else
+        {
+            return PrintColor::White;
+        }
+    }
+};
+
+template<typename Node>
+class AATree : public BinarySearchTree<Node>
+{
+public:
+    using key_type = typename Node::key_type;
+    using mapped_type = typename Node::mapped_type;
     using value_type = std::pair<const key_type, mapped_type>;
-    using size_type = unsigned int;
+    using size_type = typename BinarySearchTree<Node>::size_type;
+    using node_type = Node;
 
     AATree();
-    ~AATree();
+    virtual ~AATree();
 
-    size_type size() const;
-    int height() const;
-    int height(AANode<Key, Value>* node) const;
-
-    void clear();
-
-    AANode<Key, Value>* maximum() const;
-    AANode<Key, Value>* maximum(AANode<Key, Value>* node) const;
-    AANode<Key, Value>* minimum() const;
-    AANode<Key, Value>* minimum(AANode<Key, Value>* node) const;
-
-    AANode<Key, Value>* successor(AANode<Key, Value>* node) const;
-    AANode<Key, Value>* predecessor(AANode<Key, Value>* node) const;
-
-    bool isInTree(AANode<Key, Value>* node) const;
-
-    AANode<Key, Value>* find(const Key& key) const;
-    bool insert(const value_type& value);
-    size_type erase(const Key& key);
-
-    void print() const;
+    virtual bool insert(const value_type& value);
+    virtual size_type erase(const key_type& key);
 
 private:
-    AANode<Key, Value>* root_;
-    size_type nodes_;
-
-    AANode<Key, Value>* skew(AANode<Key, Value>* node);
-    AANode<Key, Value>* split(AANode<Key, Value>* node);
-    AANode<Key, Value>* insertNode(AANode<Key, Value>* node, AANode<Key, Value>* rootNode);
-    AANode<Key, Value>* deleteNode(AANode<Key, Value>* node, AANode<Key, Value>* rootNode);
-    AANode<Key, Value>* decreaseLevel(AANode<Key, Value>* node);
+    Node* skew(Node* node);
+    Node* split(Node* node);
+    Node* insertNode(Node* node, Node* rootNode);
+    Node* deleteNode(Node* node, Node* rootNode);
+    Node* decreaseLevel(Node* node);
 };
 
 #include "aatree.cpp"
