@@ -9,7 +9,6 @@
 #include "avltree.hh"
 #include "binarysearchtree.hh"
 #include "redblacktree.hh"
-#include "bsttrees.hh"
 #include <map>
 #include <string>
 #include <vector>
@@ -23,7 +22,6 @@ using rbt_tree = RedBlackTree<RedBlackNode<key_type, data_type>>;
 using avl_tree = AVLTree<AVLNode<key_type, data_type>>;
 using aa_tree = AATree<AANode<key_type, data_type>>;
 using map_tree = std::map<key_type, data_type>;
-using tree1 = SimpleBST<key_type, data_type>;
 
 // A struct for storing the test results
 struct TestTime

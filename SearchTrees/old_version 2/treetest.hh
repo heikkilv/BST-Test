@@ -46,8 +46,7 @@ public:
     std::vector<TestTime> test(int n);
 
 private:
-//    std::tuple<rbt_tree, avl_tree, aa_tree, bst_tree, map_tree, tree1> trees_;
-    std::tuple<bst_tree, tree1> trees_;
+    std::tuple<rbt_tree, avl_tree, aa_tree, bst_tree, map_tree> trees_;
 };
 
 #endif // TREETEST_HH

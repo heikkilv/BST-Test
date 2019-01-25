@@ -30,8 +30,6 @@ int main(int argc, char *argv[])
     int iterations{ atoi(argv[3]) };
     int repeats{ atoi(argv[4]) };
 
-//    BSTTree<int, int, SimpleBSTBalancer> a;
-
     std::vector<int> testValues;
     for (int i{ 0 }; i < iterations; ++i)
     {

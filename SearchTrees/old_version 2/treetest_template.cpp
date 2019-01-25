@@ -83,10 +83,6 @@ ContainerDescription getDescription()
     {
         return ContainerDescription{ "std::map", "MAP", true };
     }
-    else if (std::is_same<Container, tree1>::value)
-    {
-        return ContainerDescription{ "tree1", "---", false };
-    }
     else
     {
         return ContainerDescription{ "Unknown Container", "---", false };

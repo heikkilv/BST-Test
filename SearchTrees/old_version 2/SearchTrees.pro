@@ -23,8 +23,7 @@ SOURCES += main.cpp \
     treetest.cpp \
     randomvalue.cpp \
     treetest_template.cpp \
-    treetesthelper.cpp \
-    bsttree_template.cpp
+    treetesthelper.cpp
 
 HEADERS += \
     binarysearchtree.hh \
@@ -34,11 +33,6 @@ HEADERS += \
     timer.hh \
     treetest.hh \
     randomvalue.hh \
-    treetesthelper.hh \
-    bsttree.hh \
-    bstnode.hh \
-    simplebstbalancer.hh \
-    bsttrees.hh \
-    redblackbalancer.hh
+    treetesthelper.hh
 
 DISTFILES +=
