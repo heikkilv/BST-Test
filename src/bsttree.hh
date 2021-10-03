@@ -4,7 +4,7 @@
 #include "bstnode.hh"
 #include <utility>
 
-template <typename Key, typename Value, template<typename K, typename V> class Balancer>
+template <typename Key, typename Value, template<typename Key, typename Value> class Balancer>
 class BSTTree
 {
 public:
@@ -50,6 +50,6 @@ private:
     void transplant(node_type* u, node_type* v);
 };
 
-#include "bsttree_template.cpp"
+#include "bsttree.tpp"
 
 #endif // BSTTREE_HH
