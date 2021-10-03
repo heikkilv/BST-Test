@@ -24,14 +24,16 @@ class BSTNode
         const node_pointer_type& right
     );
 
-    key_type getKey();
-    value_type getValue();
-    metadata_type getMetadata();
-    node_pointer_type getParent();
-    node_pointer_type getLeft();
-    node_pointer_type getRight();
+    key_type getKey() const;
+    value_type getValue() const;
+    metadata_type getMetadata() const;
+    node_pointer_type getParent() const;
+    node_pointer_type getLeft() const;
+    node_pointer_type getRight() const;
 
-    node_pointer_type getPointer();
+    node_pointer_type getPointer() const;
+
+    operator std::string() const;
 
     friend class BSTTree;
 
@@ -43,6 +45,9 @@ class BSTNode
     node_pointer_type left_;
     node_pointer_type right_;
 };
+
+template<typename Key, typename Value, typename Metadata>
+std::ostream& operator<<(std::ostream& os, const BSTNode<Key, Value, Metadata>& node);
 
 #include "bstnode.tpp"
 
